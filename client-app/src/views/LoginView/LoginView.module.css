@@ -1,0 +1,18 @@
+.loginContainer {
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    overflow: hidden;
+}
+
+.loginForm {
+    position: relative;
+    border: 1px solid #ecf5ff;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 0 16px rgba(47, 128, 237, 0.1);
+    top: 25%;
+    left: 35%;
+    width: 25vw;
+    padding: 3vw;
+}
