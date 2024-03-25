@@ -1,0 +1,137 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input BlockUserInput {
+  _id: String!
+  isBlocked: Boolean!
+}
+
+input CreateExerciseInput {
+  description: String!
+  difficaulty: Float!
+  images: [MediaObjectInput!]!
+  name: String!
+  videos: [MediaObjectInput!]!
+}
+
+input CreateLessonInput {
+  description: String!
+  images: [MediaObjectInput!]!
+  name: String!
+}
+
+type Exercise {
+  _id: String!
+  description: String!
+  difficaulty: Float!
+  images: [MediaObject!]!
+  name: String!
+  videos: [MediaObject!]!
+}
+
+input GetExerciseInput {
+  filterString: String!
+  limit: Float!
+  skip: Float!
+}
+
+type GetExercisesResponse {
+  count: Float!
+  exercises: [Exercise!]!
+}
+
+input GetLessonsInput {
+  filterString: String!
+  limit: Float!
+  skip: Float!
+}
+
+type GetLessonsResponse {
+  count: Float!
+  exercises: [Lesson!]!
+}
+
+input GetUsersInput {
+  filterString: String!
+  limit: Float!
+  skip: Float!
+}
+
+type GetUsersResponse {
+  count: Float!
+  users: [User!]!
+}
+
+type Lesson {
+  _id: String!
+  description: String!
+  images: [MediaObject!]!
+  name: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  user: User!
+}
+
+input LoginUserInput {
+  password: String!
+  username: String!
+}
+
+type MediaObject {
+  name: String!
+  url: String!
+}
+
+input MediaObjectInput {
+  name: String!
+  url: String!
+}
+
+type Mutation {
+  blockUser(blockUserInput: BlockUserInput!): User
+  createExercise(createExerciseInput: CreateExerciseInput!): Exercise!
+  createLesson(createLessonInput: CreateLessonInput!): Lesson!
+  deleteExercise(exerciseId: String!): Exercise
+  deleteLesson(lessonId: String!): Lesson
+  deleteUser(userId: String!): User!
+  login(loginUserInput: LoginUserInput!): LoginResponse!
+  register(registerUserInput: RegisterUserInput!): User!
+}
+
+type Query {
+  getExercises(getExerciseInput: GetExerciseInput!): GetExercisesResponse!
+  getLessons(getLessonsInput: GetLessonsInput!): GetLessonsResponse!
+  getUser: User!
+  getUsers(getUsersInput: GetUsersInput!): GetUsersResponse!
+}
+
+input RegisterUserInput {
+  email: String!
+  name: String!
+  password: String!
+  phoneNumber: String!
+  surname: String!
+}
+
+type User {
+  _id: String!
+  avatar: String
+  email: String!
+  favorites: [String!]!
+  isBlocked: Boolean!
+  isDeleted: Boolean!
+  name: String!
+  passwordHash: String!
+  phoneNumber: String!
+  role: UserRole!
+  surname: String!
+}
+
+"""User roles"""
+enum UserRole {
+  ADMIN
+  USER
+}
