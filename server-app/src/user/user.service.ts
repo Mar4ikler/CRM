@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BcryptCryptographyService } from 'src/authentication/cryptography/bcrypt-cryptography-service';
-import { userRoles } from 'src/common/constants/user-roles';
 import { BlockUserInput } from 'src/common/graphql/inputs/user/block-user.input';
 import { CreateUserInput } from 'src/common/graphql/inputs/user/create-user.input';
 import { GetUsersInput } from 'src/common/graphql/inputs/user/get-users.input';
@@ -9,6 +8,7 @@ import { UpdateUserInput } from 'src/common/graphql/inputs/user/update-user.inpu
 import { GetUsersResponse } from 'src/common/graphql/types/get-users.type';
 import { UserRole } from 'src/common/graphql/types/user-role.enum';
 import { convertStringToObjectId } from 'src/common/helpers/convert-string-to-ObjectId';
+import { isValidSetUserRole } from 'src/common/helpers/is-valid-set-user-role';
 import { CreateUserFields } from 'src/common/interfaces/create-user-fields';
 import { User } from 'src/data/models/user.model';
 import { UserRepository } from 'src/data/repository/user-repository';
@@ -45,9 +45,9 @@ export class UserService {
     }
 
     async createUser(createUserInput: CreateUserInput): Promise<User> {
-        const { password: _, isAdmin: __, ...setUser } = createUserInput;
+        const { password: _, ...setUser } = createUserInput;
         const user = await this.userRepository.getOne({
-            $and: [{ $or: [{ email: setUser.email }] }, { isDeleted: false }],
+            $and: [{ nickname: setUser.nickname }, { isDeleted: false }],
         });
         if (user != null) {
             throw new BadRequestException('Такой пользователь уже существует');
@@ -57,10 +57,8 @@ export class UserService {
             passwordHash: await this.cryptographyService.encryptPassword(createUserInput.password),
             isDeleted: false,
             isBlocked: false,
-            role: createUserInput.isAdmin ? UserRole.ADMIN : UserRole.USER,
-            registrationDate: new Date().getTime(),
+            role: createUserInput.role,
             avatar: '',
-            favorites: [],
         };
         try {
             const user = await this.userRepository.create(userFields);

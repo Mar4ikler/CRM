@@ -1,6 +1,5 @@
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { userRoles } from 'src/common/constants/user-roles';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { GetUsersInput } from 'src/common/graphql/inputs/user/get-users.input';
 import { GetUsersResponse } from 'src/common/graphql/types/get-users.type';
@@ -9,41 +8,48 @@ import { RoleGuard } from 'src/common/guards/role.guard';
 import { JwtValidatedOutput } from 'src/common/interfaces/jwt';
 import { User } from 'src/data/models/user.model';
 import { UserService } from './user.service';
-import { RegisterUserInput } from 'src/common/graphql/inputs/user/register-user.input';
 import { CreateUserInput } from 'src/common/graphql/inputs/user/create-user.input';
 import { BlockUserInput } from 'src/common/graphql/inputs/user/block-user.input';
+import { UserRole } from 'src/common/graphql/types/user-role.enum';
+import { isValidSetUserRole } from 'src/common/helpers/is-valid-set-user-role';
 
 @Resolver()
 export class UserResolver {
     constructor(private readonly userService: UserService) {}
 
-    @Roles(userRoles.ADMIN, userRoles.USER)
+    @Roles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => GetUsersResponse, { name: 'getUsers' })
     async getUsers(@Args('getUsersInput') getUsersInput: GetUsersInput): Promise<GetUsersResponse> {
         return this.userService.getUsers(getUsersInput);
     }
 
-    @Roles(userRoles.ADMIN, userRoles.USER)
+    @Roles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => User, { name: 'getUser' })
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getUser(@Context() context): Promise<User> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const user: JwtValidatedOutput = context.req.user;
+        const user: JwtValidatedOutput = context.req.user as JwtValidatedOutput;
         return this.userService.getUser(user.userId);
     }
 
-    @Mutation(() => User, { name: 'register' })
-    async register(@Args('registerUserInput') registerUserInput: RegisterUserInput): Promise<User> {
-        const createUserInput: CreateUserInput = {
-            ...registerUserInput,
-            isAdmin: false,
-        };
+    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Mutation(() => User, { name: 'createUser' })
+    async createUser(
+        @Args('createUserInput') createUserInput: CreateUserInput,
+        // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+        @Context() context
+    ): Promise<User> {
+        const client: JwtValidatedOutput = context.req.user as JwtValidatedOutput;
+        if (!isValidSetUserRole(client.role, createUserInput.role))
+            throw new BadRequestException(
+                'У вас недостаточно прав для создания пользователя данной роли'
+            );
         return this.userService.createUser(createUserInput);
     }
 
-    @Roles(userRoles.ADMIN)
+    @Roles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Mutation(() => User, { name: 'deleteUser' })
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -55,7 +61,7 @@ export class UserResolver {
         return this.userService.deleteUser(userId);
     }
 
-    @Roles(userRoles.ADMIN)
+    @Roles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Mutation(() => User, { name: 'blockUser', nullable: true })
     async blockUser(

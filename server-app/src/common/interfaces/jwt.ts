@@ -4,12 +4,12 @@ export interface JwtInputPayload {
     iat: number;
     iss: string;
     sub: string;
-    email: string;
+    nickname: string;
     role: string;
 }
 
 export interface JwtValidatedOutput {
     userId: string;
-    email: string;
+    nickname: string;
     role: string;
 }

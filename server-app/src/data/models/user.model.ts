@@ -10,13 +10,7 @@ export class User {
     _id: string;
     @Prop({ required: true })
     @Field(() => String)
-    name: string;
-    @Prop({ required: true })
-    @Field(() => String)
-    surname: string;
-    @Prop({ required: true })
-    @Field(() => String)
-    phoneNumber: string;
+    nickname: string;
     @Prop({ required: true})
     @Field(() => String)
     email: string;
@@ -35,9 +29,6 @@ export class User {
     @Prop()
     @Field(() => Boolean)
     isDeleted: false;
-    @Prop()
-    @Field(() => [String])
-    favorites: string[];
 }
 
 export type UserDocument = HydratedDocument<User>;

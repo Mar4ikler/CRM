@@ -16,7 +16,7 @@ export class AuthService {
 
     async validateUser(username: string, password: string): Promise<ValidatedUser> {
         const user = await this.userRepository.getOne({
-            email: username,
+            nickname: username,
         });
         if (
             user &&
@@ -26,7 +26,7 @@ export class AuthService {
         ) {
             return {
                 _id: user._id.toString(),
-                email: user.email,
+                nickname: user.nickname,
                 password: user.passwordHash,
                 role: user.role,
             };
@@ -36,7 +36,7 @@ export class AuthService {
 
     async login(user: User): Promise<LoginResponse> {
         const accessToken = await this.jwtService.signAsync({
-            email: user.email,
+            nickname: user.nickname,
             role: user.role,
             sub: user._id,
         });

@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Length, Matches } from 'class-validator';
+import { UserRole } from '../../types/user-role.enum';
 
 @InputType()
 export class CreateUserInput {
@@ -13,13 +14,7 @@ export class CreateUserInput {
     @Length(3, 30, {
         message: 'Имя должно содержать от 3 до 30 символов и может содержать только буквы',
     })
-    name: string;
-
-    @Field(() => String)
-    @Length(3, 30, {
-        message: 'Фамилия должна содержать от 3 до 30 символов и может содержать только буквы',
-    })
-    surname: string;
+    nickname: string;
 
     @Field(() => String)
     @Matches(/^[a-zA-Z0-9_\-!@#$%^&*()\-_+={}[\]:;,<.>]{3,20}$/, {
@@ -27,12 +22,6 @@ export class CreateUserInput {
     })
     password: string;
 
-    @Field(() => String)
-    @Matches(/^\+375\s\d{2}\s\d{7}$/, {
-        message: 'Мобильный телефон не соответсвует шаблону',
-    })
-    phoneNumber: string;
-
-    @Field(() => Boolean)
-    isAdmin: boolean;
+    @Field(() => UserRole)
+    role: UserRole;
 }

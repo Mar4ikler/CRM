@@ -1,4 +1,4 @@
 import { CustomDecorator, SetMetadata } from '@nestjs/common';
-import { Role } from '../constants/user-roles';
+import { UserRole } from '../graphql/types/user-role.enum';
 
-export const Roles = (...args: Role[]): CustomDecorator => SetMetadata('roles', args);
+export const Roles = (...args: UserRole[]): CustomDecorator => SetMetadata('roles', args);
