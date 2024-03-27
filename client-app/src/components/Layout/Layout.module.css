@@ -1,0 +1,13 @@
+.navBarContainer {
+    overflow: hidden;
+}
+
+.outletContainer {
+    width: 100vw;
+    padding-left: 3vw;
+}
+
+.contentContainer {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+}

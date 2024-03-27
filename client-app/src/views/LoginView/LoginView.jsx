@@ -4,8 +4,14 @@ import { useMutation } from '@apollo/client';
 import { userMutations } from '../../graphQL/user/user.mutations';
 import { useState } from 'react';
 import { validator } from '../../helpers/validator';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setAccessToken } from '../../redux/features/app/appSlice';
 
 const LoginView = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [nickname, setNickname] = useState('');
     const [password, setPassword] = useState('');
 
@@ -28,10 +34,14 @@ const LoginView = () => {
 
     const [login] = useMutation(userMutations.LOGIN, {
         onCompleted: (data) => {
-            //const loginData = data.login;
-            console.log(data);
+            const loginData = data.login;
+            //dispatch(setLoginInfo(loginData.user));
+            dispatch(setAccessToken(loginData.accessToken));
+            navigate('/');
         },
-        onError: () => {},
+        onError: () => {
+            alert('Неправильный логин или пароль');
+        },
     });
 
     const handleLogin = () => {
