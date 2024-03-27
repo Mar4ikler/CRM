@@ -20,20 +20,22 @@ export class UserService {
         private cryptographyService: BcryptCryptographyService
     ) {}
 
-    async getUsers(getUsersInput: GetUsersInput): Promise<GetUsersResponse> {
+    async getUsers(getUsersInput: GetUsersInput, clientId: string): Promise<GetUsersResponse> {
         const regex = new RegExp(getUsersInput.filterString, 'i');
         const filter = {
             $and: [
                 {
-                    $or: [{ login: { $regex: regex } }, { fullName: { $regex: regex } }],
+                    nickname: { $regex: regex },
                 },
                 { isDeleted: false },
             ],
         };
-        const count: number = await this.userRepository.count('login', filter);
+        const count: number = await this.userRepository.count('nickname', filter);
         const skip = Math.max(getUsersInput.skip, 0);
         const limit = getUsersInput.limit <= 0 ? null : getUsersInput.limit;
-        const users = await this.userRepository.getMany(filter, null, skip, limit);
+        const users = (await this.userRepository.getMany(filter, null, skip, limit)).filter(
+            (item) => item._id.toString() !== clientId
+        );
         return {
             users,
             count,
@@ -91,6 +93,16 @@ export class UserService {
             return await this.userRepository.getOne(filter);
         } catch (e) {
             throw new BadRequestException('Ошибка блокировки пользователя');
+        }
+    }
+
+    async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
+        try {
+            const filter = { _id: convertStringToObjectId(updateUserInput._id) };
+            await this.userRepository.updateOne(updateUserInput, filter);
+            return await this.userRepository.getOne(filter);
+        } catch (e) {
+            throw new BadRequestException('Такой пользователь уже существует');
         }
     }
 }

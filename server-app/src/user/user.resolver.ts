@@ -12,6 +12,7 @@ import { CreateUserInput } from 'src/common/graphql/inputs/user/create-user.inpu
 import { BlockUserInput } from 'src/common/graphql/inputs/user/block-user.input';
 import { UserRole } from 'src/common/graphql/types/user-role.enum';
 import { isValidSetUserRole } from 'src/common/helpers/is-valid-set-user-role';
+import { UpdateUserInput } from 'src/common/graphql/inputs/user/update-user.input';
 
 @Resolver()
 export class UserResolver {
@@ -20,8 +21,13 @@ export class UserResolver {
     @Roles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => GetUsersResponse, { name: 'getUsers' })
-    async getUsers(@Args('getUsersInput') getUsersInput: GetUsersInput): Promise<GetUsersResponse> {
-        return this.userService.getUsers(getUsersInput);
+    async getUsers(
+        @Args('getUsersInput') getUsersInput: GetUsersInput,
+        // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+        @Context() context
+    ): Promise<GetUsersResponse> {
+        const client: JwtValidatedOutput = context.req.user as JwtValidatedOutput;
+        return this.userService.getUsers(getUsersInput, client.userId);
     }
 
     @Roles(UserRole.ADMIN)
@@ -74,5 +80,12 @@ export class UserResolver {
         if (user.userId === blockUserInput._id)
             throw new BadRequestException('Вы не можете заблокировать самого себя');
         return this.userService.blockUser(blockUserInput);
+    }
+
+    @Roles(UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Mutation(() => User, { name: 'updateUser' })
+    async updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput): Promise<User> {
+        return this.userService.updateUser(updateUserInput);
     }
 }

@@ -40,11 +40,20 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   deleteUser(userId: String!): User!
   login(loginUserInput: LoginUserInput!): LoginResponse!
+  updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
 type Query {
   getUser: User!
   getUsers(getUsersInput: GetUsersInput!): GetUsersResponse!
+}
+
+input UpdateUserInput {
+  _id: String!
+  email: String!
+  nickname: String!
+  password: String!
+  role: UserRole!
 }
 
 type User {
