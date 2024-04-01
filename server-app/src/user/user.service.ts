@@ -25,7 +25,7 @@ export class UserService {
         const filter = {
             $and: [
                 {
-                    nickname: { $regex: regex },
+                    $or: [{ nickname: { $regex: regex } }, { role: { $regex: regex } }],
                 },
                 { isDeleted: false },
             ],

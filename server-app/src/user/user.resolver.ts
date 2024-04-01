@@ -18,7 +18,7 @@ import { UpdateUserInput } from 'src/common/graphql/inputs/user/update-user.inpu
 export class UserResolver {
     constructor(private readonly userService: UserService) {}
 
-    @Roles(UserRole.ADMIN)
+    @Roles(UserRole.ADMIN, UserRole.MANAGER)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => GetUsersResponse, { name: 'getUsers' })
     async getUsers(
@@ -30,14 +30,22 @@ export class UserResolver {
         return this.userService.getUsers(getUsersInput, client.userId);
     }
 
-    @Roles(UserRole.ADMIN)
+    @Roles(UserRole.ADMIN, UserRole.MANAGER)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => User, { name: 'getUser' })
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async getUser(@Context() context): Promise<User> {
-        const user: JwtValidatedOutput = context.req.user as JwtValidatedOutput;
-        return this.userService.getUser(user.userId);
+    async getUser(@Args('userId') userId: string): Promise<User> {
+        return this.userService.getUser(userId);
     }
+
+    // @Roles(UserRole.ADMIN)
+    // @UseGuards(JwtAuthGuard, RoleGuard)
+    // @Query(() => User, { name: 'getUser' })
+    // // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    // async getUser(@Context() context): Promise<User> {
+    //     const user: JwtValidatedOutput = context.req.user as JwtValidatedOutput;
+    //     return this.userService.getUser(user.userId);
+    // }
 
     @Roles(UserRole.ADMIN, UserRole.MANAGER)
     @UseGuards(JwtAuthGuard, RoleGuard)

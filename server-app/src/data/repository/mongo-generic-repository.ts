@@ -6,8 +6,10 @@ import { Model } from 'mongoose';
 
 export class MongoGenericRepository<T> {
     private _repository: Model<T>;
-    constructor(repository: Model<T>) {
+    protected _populatedFields: string[];
+    constructor(repository: Model<T>, populatedFields?: string[]) {
         this._repository = repository;
+        this._populatedFields = populatedFields;
     }
 
     updateMany(update: any, filter?: any, options?: any): any {
@@ -28,7 +30,7 @@ export class MongoGenericRepository<T> {
 
     async update(id: string, item: any, session?: any): Promise<T> {
         const options = !session ? { new: true } : { session, new: true };
-        return this._repository.findByIdAndUpdate(id, { $set: item }, options).exec();
+        return this._repository.findByIdAndUpdate(id, item, options).exec();
     }
 
     async getMany(filter: any, sort?: any, skip?: any, limit?: any, session?: any): Promise<T[]> {
@@ -37,11 +39,16 @@ export class MongoGenericRepository<T> {
             .skip(skip)
             .limit(limit)
             .sort(sort)
+            .populate(this._populatedFields)
             .exec();
     }
 
-    async getOne(filter: any, sort?: any, session?: any): Promise<T> {
-        return this._repository.findOne(filter, null, { session: session }).sort(sort).exec();
+    async getOne(filter: any, sort?: any, session?: any): Promise<any> {
+        return this._repository
+            .findOne(filter, null, { session: session })
+            .sort(sort)
+            .populate(this._populatedFields)
+            .exec();
     }
 
     async delete(id: string, options?: any): Promise<any> {

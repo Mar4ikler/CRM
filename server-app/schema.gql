@@ -7,11 +7,51 @@ input BlockUserInput {
   isBlocked: Boolean!
 }
 
+type Comment {
+  _id: String!
+  date: DateTime!
+  text: String!
+  user: User!
+}
+
+input CreateCommentInput {
+  date: DateTime!
+  taskId: String!
+  text: String!
+}
+
+input CreateTaskInput {
+  client: String!
+  description: String!
+  developers: [String!]!
+  endDate: DateTime!
+  name: String!
+  price: Float!
+  startDate: DateTime!
+  status: TaskStatus!
+}
+
 input CreateUserInput {
   email: String!
   nickname: String!
   password: String!
   role: UserRole!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input GetTasksInput {
+  filterString: String!
+  limit: Float!
+  skip: Float!
+}
+
+type GetTasksResponse {
+  count: Float!
+  tasks: [Task!]!
 }
 
 input GetUsersInput {
@@ -37,6 +77,8 @@ input LoginUserInput {
 
 type Mutation {
   blockUser(blockUserInput: BlockUserInput!): User
+  createComment(createCommentInput: CreateCommentInput!): Task!
+  createTask(createTaskInput: CreateTaskInput!): Task!
   createUser(createUserInput: CreateUserInput!): User!
   deleteUser(userId: String!): User!
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -44,8 +86,34 @@ type Mutation {
 }
 
 type Query {
-  getUser: User!
+  getTask(taskId: String!): Task!
+  getTasks(getTasksInput: GetTasksInput!): GetTasksResponse!
+  getUser(userId: String!): User!
   getUsers(getUsersInput: GetUsersInput!): GetUsersResponse!
+}
+
+type Task {
+  _id: String!
+  client: User!
+  comments: [Comment!]
+  creator: User!
+  description: String!
+  developers: [User!]!
+  endDate: DateTime!
+  name: String!
+  price: Float!
+  startDate: DateTime!
+  status: TaskStatus!
+}
+
+"""Task status"""
+enum TaskStatus {
+  ASSIGNED
+  CLOSED
+  COMPLETED
+  DISCUSSION
+  NEW
+  TESTING
 }
 
 input UpdateUserInput {
