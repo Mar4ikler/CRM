@@ -1,0 +1,32 @@
+.taskContainer {
+    display: grid;
+    grid-template-rows: repeat(3, max-content);
+    row-gap: 3vh;
+}
+
+.headerContainer {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    column-gap: 2vw;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.infoContainer {
+    display: grid;
+    grid-template-columns: 59vw 10vw;
+    column-gap: 2vw;
+}
+
+.commentContainer {
+    display: grid;
+    grid-template-rows: repeat(3, max-content);
+    row-gap: 1vh;
+    width: 30vw;
+}
+
+.comments {
+    display: grid;
+    grid-template-rows: auto;
+    row-gap: 1vh;
+}

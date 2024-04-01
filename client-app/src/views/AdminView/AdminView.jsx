@@ -36,7 +36,7 @@ const AdminView = () => {
     useEffect(() => {
         getUsers({
             variables: {
-                getUsersInput: { filterString: '', skip: 0, limit: 10 },
+                getUsersInput: { filterString: '', skip: 0, limit: -1 },
             },
         });
     }, [blockedUser, deletedUser, addedUser, updatedUser]);
@@ -170,7 +170,7 @@ const AdminView = () => {
                         </tr>
                     ))}
                     <tr>
-                        <td colSpan={7}>
+                        <td colSpan={8}>
                             <Button
                                 variant="primary"
                                 onClick={() => {

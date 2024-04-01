@@ -1,5 +1,4 @@
 import { ListGroup } from 'react-bootstrap';
-import styles from './NavBar.module.css';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../helpers/logout';
 
@@ -10,12 +9,15 @@ const NavBar = () => {
         <>
             <ListGroup defaultActiveKey="#link1">
                 <ListGroup.Item action href="#link1">
-                    Canban
+                    Kanban
                 </ListGroup.Item>
-                <ListGroup.Item action onClick={() => navigate('/admin')} href="#link2">
+                <ListGroup.Item action onClick={() => navigate('/tasks')} href="#link2">
+                    Tasks
+                </ListGroup.Item>
+                <ListGroup.Item action onClick={() => navigate('/admin')} href="#link3">
                     Admin panel
                 </ListGroup.Item>
-                <ListGroup.Item action onClick={() => logout()} href="#link3">
+                <ListGroup.Item action onClick={() => logout()} href="#link4">
                     Logout
                 </ListGroup.Item>
             </ListGroup>
