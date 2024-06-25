@@ -28,7 +28,21 @@ const CREATE_COMMENT = gql(`
         }
     }`);
 
+const DELETE_TASK = gql(`
+mutation DeleteTask ($taskId: String!) {
+    deleteTask(taskId: $taskId) {
+        _id
+        description
+        endDate
+        name
+        price
+        startDate
+        status
+    }
+}`);
+
 export const taskMutations = {
     CREATE_TASK,
-    CREATE_COMMENT
+    CREATE_COMMENT,
+    DELETE_TASK
 };

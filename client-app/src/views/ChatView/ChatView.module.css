@@ -1,0 +1,79 @@
+.chatContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
+.userList {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    gap: 10px;
+    padding-right: 10px;
+}
+
+.userListItem {
+    border-top: 1px solid #ddd;
+}
+
+.chatWindow {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.messagesContainer {
+    height: 83vh;
+    overflow-y: auto;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    padding-bottom: 20px;
+}
+
+.messagesContainer::-webkit-scrollbar {
+    display: none;
+}
+
+.messageContainerEnd {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.messageContainerStart {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.selectedChatContainer {
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+}
+
+.mess {
+    background-color: rgb(255, 255, 255);
+}
+
+.send {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.hedMessMy {
+    background-color: rgba(0, 0, 255, 0.665);
+    color: white;
+    border-bottom: 1px solid rgb(151, 151, 151);
+    box-shadow: 1px 9px 8px -9px rgba(0, 0, 0, 0.47);
+}
+
+.hedMessYou {
+    background-color: rgba(103, 103, 103, 0.665);
+    color: white;
+    border-bottom: 1px solid rgb(151, 151, 151);
+    box-shadow: 1px 9px 8px -9px rgba(0, 0, 0, 0.47);
+}

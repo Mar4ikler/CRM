@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCommentInput } from 'src/common/graphql/inputs/task/create-comment.input';
@@ -26,7 +29,10 @@ export class TaskService {
         const skip = Math.max(getTasksInput.skip, 0);
         const limit = getTasksInput.limit <= 0 ? null : getTasksInput.limit;
         const tasks = (await this.taskRepository.getMany(filter, null, skip, limit)).filter(
-            (item) => item.creator._id.toString() === clientId
+            (item) =>
+                item.creator._id.toString() === clientId ||
+                item.developers[0]._id.toString() === clientId ||
+                item.client._id.toString() === clientId
         );
         let newComments = [];
         for (const item of tasks) {
@@ -109,89 +115,8 @@ export class TaskService {
         return task;
     }
 
-    // async getUsers(getUsersInput: GetUsersInput, clientId: string): Promise<GetUsersResponse> {
-    //     const regex = new RegExp(getUsersInput.filterString, 'i');
-    //     const filter = {
-    //         $and: [
-    //             {
-    //                 nickname: { $regex: regex },
-    //             },
-    //             { isDeleted: false },
-    //         ],
-    //     };
-    //     const count: number = await this.userRepository.count('nickname', filter);
-    //     const skip = Math.max(getUsersInput.skip, 0);
-    //     const limit = getUsersInput.limit <= 0 ? null : getUsersInput.limit;
-    //     const users = (await this.userRepository.getMany(filter, null, skip, limit)).filter(
-    //         (item) => item._id.toString() !== clientId
-    //     );
-    //     return {
-    //         users,
-    //         count,
-    //     };
-    // }
-
-    // async getUser(userId: string): Promise<User> {
-    //     return this.userRepository.getOne({ _id: convertStringToObjectId(userId) });
-    // }
-
-    // async createUser(createUserInput: CreateUserInput): Promise<User> {
-    //     const { password: _, ...setUser } = createUserInput;
-    //     const user = await this.userRepository.getOne({
-    //         $and: [{ nickname: setUser.nickname }, { isDeleted: false }],
-    //     });
-    //     if (user != null) {
-    //         throw new BadRequestException('Такой пользователь уже существует');
-    //     }
-    //     const userFields: CreateUserFields = {
-    //         ...setUser,
-    //         passwordHash: await this.cryptographyService.encryptPassword(createUserInput.password),
-    //         isDeleted: false,
-    //         isBlocked: false,
-    //         role: createUserInput.role,
-    //         avatar: '',
-    //     };
-    //     try {
-    //         const user = await this.userRepository.create(userFields);
-    //         return user;
-    //     } catch (e) {
-    //         throw new BadRequestException('Ошибка создания пользователя');
-    //     }
-    // }
-
-    // async deleteUser(userId: string): Promise<User> {
-    //     try {
-    //         const updateFields = {
-    //             isDeleted: true,
-    //         };
-    //         const filter = { _id: convertStringToObjectId(userId) };
-    //         await this.userRepository.updateOne(updateFields, filter);
-    //         return await this.userRepository.getOne(filter);
-    //     } catch (e) {
-    //         throw new BadRequestException('Ошибка удаления пользователя');
-    //     }
-    // }
-
-    // async blockUser(blockUserInput: BlockUserInput): Promise<User> {
-    //     try {
-    //         const updateFields = {
-    //             isBlocked: blockUserInput.isBlocked,
-    //         };
-    //         const filter = { _id: convertStringToObjectId(blockUserInput._id) };
-    //         await this.userRepository.updateOne(updateFields, filter);
-    //         return await this.userRepository.getOne(filter);
-    //     } catch (e) {
-    //         throw new BadRequestException('Ошибка блокировки пользователя');
-    //     }
-    // }
-
-    // async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
-    //     try {
-    //         const filter = { _id: convertStringToObjectId(updateUserInput._id) };
-    //         await this.userRepository.updateOne(updateUserInput, filter);
-    //         return await this.userRepository.getOne(filter);
-    //     } catch (e) {
-    //         throw new BadRequestException('Такой пользователь уже существует');
-    //     }
-    // }
+    async deleteTask(taskId: string): Promise<Task> {
+        const task = await this.taskRepository.delete(taskId);
+        return task;
+    }
 }

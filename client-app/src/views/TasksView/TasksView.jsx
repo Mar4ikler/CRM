@@ -7,9 +7,11 @@ import 'react-calendar-datetime-picker/dist/style.css';
 import { userQueries } from '../../graphQL/user/user.queries';
 import { taskMutations } from '../../graphQL/task/task.mutations';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const TasksView = () => {
     const navigate = useNavigate();
+    const user = useSelector((state) => state.app.user);
 
     const [tasks, setTasks] = useState([]);
     const [show, setShow] = useState(false);
@@ -22,6 +24,7 @@ const TasksView = () => {
     const [client, setClient] = useState('');
     const [date, setDate] = useState({});
     const [addedTask, setAddedTask] = useState({});
+    const [deletedTask, setDeletedTask] = useState(null);
 
     const handleNameChange = (event) => setName(event.target.value);
     const handleDescriptionChange = (event) => setDescription(event.target.value);
@@ -44,7 +47,7 @@ const TasksView = () => {
             },
             fetchPolicy: 'network-only',
         });
-    }, [addedTask]);
+    }, [addedTask, deletedTask]);
 
     const [getDevelopers] = useLazyQuery(userQueries.GET_USERS, {
         onCompleted: (data) => {
@@ -99,6 +102,20 @@ const TasksView = () => {
         });
     };
 
+    const [deleteTask] = useMutation(taskMutations.DELETE_TASK, {
+        onCompleted: (data) => {
+            setDeletedTask(data);
+        },
+    });
+
+    const handleDeleteTask = (id) => {
+        deleteTask({
+            variables: {
+                taskId: id,
+            },
+        });
+    };
+
     return (
         <>
             <Table striped bordered hover>
@@ -107,22 +124,47 @@ const TasksView = () => {
                         <th>#</th>
                         <th>Task name</th>
                         <th>Creator</th>
-                        <th>Developer</th>
                         <th>Client</th>
+                        <th>Developer</th>
+                        <th>Status</th>
+                        {user.role === 'MANAGER' && <th>Delete</th>}
                     </tr>
                 </thead>
                 <tbody>
                     {tasks.map((item, index) => (
-                        <tr key={index} onClick={() => navigate('/task', { state: { item } })}>
-                            <td>{++index}</td>
-                            <td>{item.name}</td>
-                            <td>{item.creator.nickname}</td>
-                            <td>{item.client.nickname}</td>
-                            <td>{item.developers[0].nickname}</td>
+                        <tr key={index}>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {++index}
+                            </td>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {item.name}
+                            </td>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {item.creator.nickname}
+                            </td>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {item.client.nickname}
+                            </td>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {item.developers[0].nickname}
+                            </td>
+                            <td onClick={() => navigate('/task', { state: { item } })}>
+                                {item.status}
+                            </td>
+                            {user.role === 'MANAGER' && (
+                                <td>
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => handleDeleteTask(item._id)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </td>
+                            )}
                         </tr>
                     ))}
                     <tr>
-                        <td colSpan={5}>
+                        <td colSpan={7}>
                             <Button
                                 variant="primary"
                                 onClick={() => {

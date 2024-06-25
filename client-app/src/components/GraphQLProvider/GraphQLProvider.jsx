@@ -1,10 +1,13 @@
-import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink, split } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { useDispatch, useSelector } from 'react-redux';
-import { HTTP_API_URL } from '../../constants/url';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+import { HTTP_API_URL, WS_API_URL } from '../../constants/url';
 import { errorHandler } from '../../helpers/errorHandler';
 import { setError } from '../../redux/features/app/appSlice';
+import { getMainDefinition } from '@apollo/client/utilities';
 
 const GraphQlProvider = ({ children }) => {
     const token = useSelector((state) => state.app.accessToken);
@@ -13,6 +16,15 @@ const GraphQlProvider = ({ children }) => {
     const uploadLink = createHttpLink({
         uri: HTTP_API_URL,
     });
+
+    const wsLink = new GraphQLWsLink(
+        createClient({
+            url: WS_API_URL,
+            connectionParams: {
+                authToken: `Bearer ${token}`,
+            },
+        })
+    );
 
     const authLink = setContext((_, { headers }) => {
         return {
@@ -24,6 +36,15 @@ const GraphQlProvider = ({ children }) => {
     });
     const httpLinkWithAuth = authLink.concat(uploadLink);
 
+    const splitLink = split(
+        ({ query }) => {
+            const definition = getMainDefinition(query);
+            return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+        },
+        wsLink,
+        httpLinkWithAuth
+    );
+
     const errorLink = onError((errorResponse) => {
         console.log(errorResponse);
         const error = errorHandler(errorResponse);
@@ -31,7 +52,7 @@ const GraphQlProvider = ({ children }) => {
     });
 
     const client = new ApolloClient({
-        link: errorLink.concat(httpLinkWithAuth),
+        link: errorLink.concat(splitLink),
         cache: new InMemoryCache({
             addTypename: false,
         }),

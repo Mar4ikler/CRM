@@ -13,12 +13,17 @@ import { BlockUserInput } from 'src/common/graphql/inputs/user/block-user.input'
 import { UserRole } from 'src/common/graphql/types/user-role.enum';
 import { isValidSetUserRole } from 'src/common/helpers/is-valid-set-user-role';
 import { UpdateUserInput } from 'src/common/graphql/inputs/user/update-user.input';
+import { EmailNotificationService } from '../email/email.service';
+import { EmailNotificationParams } from '../common/interfaces/emailNotificationParams';
 
 @Resolver()
 export class UserResolver {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly emailNotificationService: EmailNotificationService
+    ) {}
 
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.DEVELOPER, UserRole.CLIENT)
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => GetUsersResponse, { name: 'getUsers' })
     async getUsers(
@@ -60,7 +65,14 @@ export class UserResolver {
             throw new BadRequestException(
                 'У вас недостаточно прав для создания пользователя данной роли'
             );
-        return this.userService.createUser(createUserInput);
+        const newUser = await this.userService.createUser(createUserInput);
+        const emailParams: EmailNotificationParams = {
+            userEmail: createUserInput.email,
+            subject: 'Now you are in our system',
+            message: `Your nickname: ${createUserInput.nickname}, password: ${createUserInput.password}`,
+        };
+        this.emailNotificationService.sendEmailNotification(emailParams);
+        return newUser;
     }
 
     @Roles(UserRole.ADMIN)
@@ -72,7 +84,14 @@ export class UserResolver {
         const user: JwtValidatedOutput = context.req.user;
         if (user.userId === userId)
             throw new BadRequestException('Вы не можете удалить самого себя');
-        return this.userService.deleteUser(userId);
+        const deletedUser = await this.userService.deleteUser(userId);
+        const emailParams: EmailNotificationParams = {
+            userEmail: deletedUser.email,
+            subject: 'Your access was updated',
+            message: `Your account was deleted`,
+        };
+        this.emailNotificationService.sendEmailNotification(emailParams);
+        return deletedUser;
     }
 
     @Roles(UserRole.ADMIN)
@@ -87,7 +106,14 @@ export class UserResolver {
         const user: JwtValidatedOutput = context.req.user;
         if (user.userId === blockUserInput._id)
             throw new BadRequestException('Вы не можете заблокировать самого себя');
-        return this.userService.blockUser(blockUserInput);
+        const blockedUser = await this.userService.blockUser(blockUserInput);
+        const emailParams: EmailNotificationParams = {
+            userEmail: blockedUser.email,
+            subject: 'Your access was updated',
+            message: `Your account was ${blockedUser.isBlocked ? 'blocked' : 'unblock'}`,
+        };
+        this.emailNotificationService.sendEmailNotification(emailParams);
+        return blockedUser;
     }
 
     @Roles(UserRole.ADMIN)

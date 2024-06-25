@@ -4,6 +4,16 @@ const LOGIN = gql(`
     mutation Login ($loginUserInput: LoginUserInput!) {
         login(loginUserInput: $loginUserInput) {
             accessToken
+            user {
+                _id
+                avatar
+                email
+                isBlocked
+                isDeleted
+                nickname
+                passwordHash
+                role
+            }
         }
     }`);
 

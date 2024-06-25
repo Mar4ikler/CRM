@@ -4,6 +4,7 @@ import { AuthModule } from './authentication/auth.module';
 import { ExceptionsModule } from './common/filters/exception/exception.module';
 import { UserModule } from './user/user.module';
 import { TaskModule } from './task/task.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
     imports: [
@@ -14,7 +15,8 @@ import { TaskModule } from './task/task.module';
         ExceptionsModule,
         AuthModule,
         UserModule,
-        TaskModule
+        TaskModule,
+        ChatModule
     ],
 })
 export class AppModule {}

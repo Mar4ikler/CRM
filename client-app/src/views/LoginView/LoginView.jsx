@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { validator } from '../../helpers/validator';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setAccessToken } from '../../redux/features/app/appSlice';
+import { setAccessToken, setLoginInfo } from '../../redux/features/app/appSlice';
 
 const LoginView = () => {
     const navigate = useNavigate();
@@ -35,9 +35,9 @@ const LoginView = () => {
     const [login] = useMutation(userMutations.LOGIN, {
         onCompleted: (data) => {
             const loginData = data.login;
-            //dispatch(setLoginInfo(loginData.user));
+            dispatch(setLoginInfo(loginData.user));
             dispatch(setAccessToken(loginData.accessToken));
-            navigate('/');
+            navigate('/chat');
         },
         onError: () => {
             alert('Неправильный логин или пароль');
@@ -76,10 +76,6 @@ const LoginView = () => {
                             placeholder="Password"
                             onChange={handlePasswordChange}
                         />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                        <Form.Check type="checkbox" label="Check me out" />
                     </Form.Group>
 
                     <Button variant="primary" onClick={handleLogin}>

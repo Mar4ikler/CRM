@@ -7,6 +7,12 @@ input BlockUserInput {
   isBlocked: Boolean!
 }
 
+type Chat {
+  _id: String!
+  messages: [Message!]
+  participants: [User!]
+}
+
 type Comment {
   _id: String!
   date: DateTime!
@@ -43,6 +49,12 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input GetChatsInput {
+  filterString: String!
+  limit: Float!
+  skip: Float!
+}
+
 input GetTasksInput {
   filterString: String!
   limit: Float!
@@ -75,21 +87,39 @@ input LoginUserInput {
   username: String!
 }
 
+type Message {
+  author: User!
+  date: DateTime!
+  text: String!
+}
+
 type Mutation {
   blockUser(blockUserInput: BlockUserInput!): User
   createComment(createCommentInput: CreateCommentInput!): Task!
   createTask(createTaskInput: CreateTaskInput!): Task!
   createUser(createUserInput: CreateUserInput!): User!
+  deleteTask(taskId: String!): Task!
   deleteUser(userId: String!): User!
   login(loginUserInput: LoginUserInput!): LoginResponse!
+  sendMessage(sendMessagetInput: SendMessagetInput!): Message!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
 type Query {
+  getChats(getChatsInput: GetChatsInput!): [Chat!]!
   getTask(taskId: String!): Task!
   getTasks(getTasksInput: GetTasksInput!): GetTasksResponse!
   getUser(userId: String!): User!
   getUsers(getUsersInput: GetUsersInput!): GetUsersResponse!
+}
+
+input SendMessagetInput {
+  receiverId: String!
+  text: String!
+}
+
+type Subscription {
+  newMessage: Message!
 }
 
 type Task {
@@ -109,9 +139,7 @@ type Task {
 """Task status"""
 enum TaskStatus {
   ASSIGNED
-  CLOSED
   COMPLETED
-  DISCUSSION
   NEW
   TESTING
 }

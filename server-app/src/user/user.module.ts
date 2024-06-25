@@ -6,9 +6,10 @@ import { UserFeatureConfigModule } from 'src/config/mongo/features/user-feature.
 import { UserRepository } from 'src/data/repository/user-repository';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
+import { EmailNotificationService } from '../email/email.service';
 
 @Module({
     imports: [GraphQLConfigModule, MongoConfigModule, UserFeatureConfigModule],
-    providers: [UserResolver, UserService, UserRepository, BcryptCryptographyService],
+    providers: [UserResolver, UserService, UserRepository, BcryptCryptographyService, EmailNotificationService],
 })
 export class UserModule {}
